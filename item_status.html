@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>產品內容更新</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="background vh-100" style="background-color: black;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mt-5 w-100" id="card">
+                        <div class="card-body">
+                            <h1 style="color:pink; text-align:center">產品內容更新</h1>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="item_name" placeholder="必填">
+                                <label for="item_name">1. 商品名稱</label>
+                            </div>
+                            <div class="mb-3">
+                                <label for="item_photo" class="form-label">2. 商品圖片</label>
+                                <input class="form-control" type="file" id="item_photo">
+                                <button class="btn btn-light mt-3" id="photo_upload">上傳</button>
+                                <div>
+                                    <img src="images/job.jpg" alt="" class="w-25 my-3 d-none" id="prevImg">
+                                </div>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="item_color" placeholder="必填">
+                                <label for="item_color">3. 商品顏色</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="item_introduction" placeholder="必填">
+                                <label for="item_introduction">4. 商品簡介</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="item_feature" placeholder="必填">
+                                <label for="item_feature">5. 商品特色</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="item_price" placeholder="必填">
+                                <label for="item_price">6. 商品價格</label>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" id="item_status">
+                                        <option selected>--選取狀態--</option>
+                                        <option value="Y">新品</option>
+                                        <option value="N">下架</option>
+                                        <option value="S">20%促銷</option>
+                                        <option value="H">50%促銷</option>
+                                    </select>
+                                    <label for="item_status">7. 商品狀態</label>
+                                </div>
+                            </div>
+                            <section>
+                                <button type="button" class="btn btn-success" id="update_btn">更新上傳</button>
+                                <a href="item_management.html" class="btn btn-outline-success" tabindex="-1"
+                                    role="button" aria-disabled="true">取消，回上頁</a>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        var i_no;
+        $(function () {
+            console.log(location.href);
+            // 印出目前的所在位置
+            console.log(location.href.split("="));
+            console.log(location.href.split("=")[1]);
+            // 取得網址item_number
+            i_no = location.href.split("=")[1];
+
+            // 利用item_number來取得資料
+            var jsonDATA = {}; //取得出來的資料放進陣列裡
+            jsonDATA["item_number"] = i_no;
+            console.log(JSON.stringify(jsonDATA));
+            $.ajax({
+                type: "POST",
+                url: "item_select_one.php",
+                data: JSON.stringify(jsonDATA),
+                dataType: "json",
+                async: false,
+                success: showdata,
+                error: function () {
+                    alert("error_item_select_one.php");
+                }
+            })
+
+            // 監聽更新按鈕 #update_btn
+            $("#update_btn").bind("click", function () {
+                // 圖片上傳
+                if (flag_upload) {
+                    //傳遞後端儲存
+                    console.log(item_photo);
+                    console.log(item_photo.files);
+                    console.log(item_photo.files[0]);
+
+                    var formData = new FormData();
+                    formData.append("file", item_photo.files[0]);
+                    console.log(formData);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "fileupload_api.php",
+                        data: formData,
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: picturedata,
+                        error: function () {
+                            alert("fileupload_api.php_error");
+                        }
+                    });
+
+                    var jsonDATA = {};
+                    jsonDATA["item_number"] = i_no;
+                    jsonDATA["item_name"] = $("#item_name").val();
+                    jsonDATA["item_color"] = $("#item_color").val();
+                    jsonDATA["item_introduction"] = $("#item_introduction").val();
+                    jsonDATA["item_feature"] = $("#item_feature").val();
+                    jsonDATA["item_price"] = $("#item_price").val();
+                    jsonDATA["item_status"] = $("#item_status").val();
+                    jsonDATA["item_photo"] = $("#item_photo").val();
+                    console.log(JSON.stringify(jsonDATA));
+
+                    // 傳遞至後端
+                    $.ajax({
+                        type: "POST",
+                        url: "item_update_api.php",
+                        data: JSON.stringify(jsonDATA),
+                        dataType: "json",
+                        success: update_data,
+                        error: function () {
+                            alert("error_item_update_api.php");
+                        }
+                    })
+                } else {
+                    alert("檔案必須為png或jpg檔");
+                    // how to reset the data in form
+                    // location.href = "#";
+                    // $("#item_photo").reset();
+                    document.getElementById("myform").reset();
+                }
+
+            })
+        })
+
+        function showdata(data) {
+            console.log(data);
+            console.log(data.data.Item_color);
+            //把取出來的資料放回去input裡
+            if (data.state) {
+                $("#item_name").val(data.data.Item_name);
+                $("#prevImg").val(data.data.Item_photo);
+                $("#item_color").val(data.data.Item_color);
+                $("#item_introduction").val(data.data.Item_introduction);
+                $("#item_feature").val(data.data.Item_feature);
+                $("#item_price").val(data.data.Item_price);
+                $("#item_status").val(data.data.Item_status);
+            } else {
+                alert(data.message);
+                location.href = "item_management.html";
+            }
+        }
+
+        function update_data(data) {
+            console.log(data);
+            if (data.state) {
+                alert(data.message);
+                location.href = "item_management.html";
+                console.log(data.data.filename);
+                var status = "upload/"+data.data.filename;
+                return status;
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

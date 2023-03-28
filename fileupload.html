@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>檔案上傳練習(前後端語法)</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-3 mt-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <label for="fileupload" class="form-label">圖片上傳</label>
+                            <input class="form-control" type="file" id="fileupload">
+                            <button class="btn btn-primary mt-3" id="upload_btn">上傳</button>
+                            <div>
+                                <img id="prevImg" src="..." class="w-25 my-3 d-none" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        var flag_upload = false;  //檔案是否符合規定
+        $(function () {
+            $("#fileupload").change(function () {
+                // console.log($(this));
+                // console.log(fileupload);
+                console.log(fileupload.files[0]);
+                console.log(fileupload.files[0].type);
+                if (fileupload.files[0].type == "image/png" || fileupload.files[0].type == "image/jpeg") {
+                    console.log("檔案格式符合!");
+                    console.log(URL.createObjectURL(fileupload.files[0]));
+                    $("#prevImg").removeClass("d-none");
+                    $("#prevImg").attr("src", URL.createObjectURL(fileupload.files[0]));
+                    flag_upload = true;
+                } else {
+                    console.log("檔案格式不符合!");
+                    $("#prevImg").addClass("d-none");
+                    flag_upload = false;
+                }
+            });
+
+            //按鈕監聽 #upload_btn
+            $("#upload_btn").bind("click", function () {
+                if (flag_upload) {
+                    //傳遞至後端儲存
+                    console.log(fileupload);
+                    console.log(fileupload.files);
+                    console.log(fileupload.files[0]);
+
+                    var formData = new FormData();
+                    formData.append("file", fileupload.files[0]);
+                    console.log(formData);
+
+                    $.ajax({
+                        type: "POST",
+                        url: "20230204-fileupload-api.php",
+                        data: formData,
+                        dataType: "json",
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: showdata,
+                        error: function () {
+                            alert("error-20230204-fileupload-api.php");
+                        }
+                    });
+                } else {
+                    alert("檔案必須為png或jpeg!");
+                }
+            })
+        });
+
+        function showdata(data) {
+            console.log(data);
+        }
+    </script>
+
+
+</body>
+
+</html>

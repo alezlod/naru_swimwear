@@ -1,0 +1,268 @@
+<!-- 早安吃早餐 -->
+<!-- 此支html為顯示DB -->
+<!-- 由表格劃出 table,thread,tr,th -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/animate.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+    <title>會員管理系統</title>
+    <style>
+        @media screen and (max-width: 768px) {
+            .table-rwd thead {
+                display: none;
+            }
+
+            .table-rwd tbody tr {
+                display: block;
+                border: 2px solid #F88379;
+            }
+
+            .table-rwd tbody tr td {
+                display: block;
+            }
+
+            .table-rwd tbody tr td:before {
+                content: attr(data-th) " : ";
+                color: white;
+                font-weight: 500;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="background bg-dark">
+            <div class="card text-center mt-3">
+                <div class="card-header"
+                    style="background-image:url(https://images.unsplash.com/photo-1595113011368-6394a2a53c84?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80)">
+                    <h1 style="color:ghostwhite; font-weight: 700; text-align: center;">會員管理系統</h1>
+                </div>
+                <div class="card-body mt-2" style="background: #F88379;">
+                    <table class="table table-rwd" style="font-size:x-large">
+                        <thread>
+                            <tr>
+                                <th>編號 ID</th>
+                                <th>帳號</th>
+                                <th>Email</th>
+                                <th>居住地</th>
+                                <th>註冊時間</th>
+                                <th>帳號狀態</th>
+                                <th>功能</th>
+                            </tr>
+                        </thread>
+                        <tbody id="mem_list">
+                            <tr>
+                                <td data-th="編號">001</td>
+                                <td data-th="帳號">xx</td>
+                                <td data-th="Email">xxx</td>
+                                <td data-th="居住地">XXX</td>
+                                <td data-th="註冊時間">xxx</td>
+                                <td data-th="帳號狀態">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="switch01"
+                                            checked>
+                                        <label class="form-check-label" for="switch01">啟用</label>
+                                    </div>
+                                </td>
+                                <td data-th="功能">
+                                    <button class="btn btn-outline-light" data-bs-toggle="modal"
+                                        data-bs-target="#update_modal" type="button" id="update_btn">Modal更新</button>
+                                    <button class="btn btn-light">刪除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- UpdateModal -->
+                <div class="modal fade" id="update_modal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success">
+                                <h5 class="modal-title;" style="color:aliceblue; font-weight: 700"
+                                    id="exampleModalLabel">會員更新</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <!-- 這兒要寫Input帳號密碼 -->
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="username" class="form-text">帳號</label>
+                                    <input type="text" class="form-control" id="username" name="username" disabled="">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="text" class="form-text">Email</label>
+                                    <input type="text" class="form-control" id="email" name="email">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="text" class="form-text">居住地</label>
+                                    <input type="text" class="form-control" id="location" name="location">
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline-dark" type="button" data-bs-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-dark" id="modal_update_confirm">確認更新</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script>
+        // 使用read的API，$.ajax連接功能
+        var u_id; //for update
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "member_read_api.php",
+                async: false,
+                dataType: "json",
+                success: showdata_memberlist,
+                error: function () {
+                    alert("error_mem_R_api.php");
+                }
+            })
+            // not working
+            //監聽table 更新按鈕 #update_btn
+            $("#mem_list #update_btn").bind("click", function () {
+                console.log($(this).data("id"));
+                console.log($(this).data("username"));
+                console.log($(this).data("email"));
+                console.log($(this).data("location"));
+
+                //將data-* 參數帶入modal畫面
+                $("#username").val($(this).data("username"));
+                $("#email").val($(this).data("email"));
+                $("#location").val($(this).data("location"));
+                u_id = $(this).data("id");
+            })
+
+            // 監聽modal 更新按鈕#modal_update_confirm
+            $("#modal_update_confirm").bind("click", function () {
+                var jsonData = {};
+                jsonData["id"] = u_id;
+                jsonData["email"] = $("#email").val();
+                jsonData["location"] = $("#location").val();
+                console.log(JSON.stringify(jsonData));
+
+                $.ajax({
+                    type: "POST",
+                    url: "members_update_api.php",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: showdata_update,
+                    error: function () {
+                        alert("error_members_update_api.php");
+                    }
+                })
+
+            })
+
+            // 監聽switch 記得按鈕id前面要加大範圍的id
+            // 此功能是toggle和label的字相互對應
+            $("#mem_list #switch01").change(function () {
+                console.log($(this).is(":checked"));
+                var UserState;
+                if ($(this).is(":checked")) {
+                    $(this).next().text("啟用");
+                    $(this).next().css("color", "blue");
+                    UserState = "y";
+                } else {
+                    $(this).next().text("停權");
+                    $(this).next().css("color", "pink");
+                    UserState = "n";
+                }
+
+                // API傳遞資料到後端
+                // {"id":"01", "userState" : false}
+                var jsonData = {};
+                jsonData["id"] = $(this).data("id");
+                jsonData["userState"] = UserState;
+                console.log(JSON.stringify(jsonData));
+                
+                $.ajax({
+                    type: "POST",
+                    url: "members_userstate_update_api.php",
+                    data: JSON.stringify(jsonData),
+                    dataTpye: "json",
+                    success: showdata_U_userState,
+                    error: function(){
+                        alert("error-mem_U_userState_api.php");
+                    }
+                })
+            });
+        })
+
+        function showdata_U_userState(data){
+            if(data.state){
+                alert(data.message);
+                location.href = "memembers_management.html";
+            }else{
+                alert(data.message);
+            }
+        }
+
+        function showdata_memberlist(data) {
+            if (data.state) {
+                console.log(data.data);
+                // $("#mem_list").empty();
+                data.data.forEach(function (item) {
+                    console.log(item.Username);
+                    console.log(item.ID);
+                    console.log(item.UserState);
+
+                    //帳號狀態另外用if else寫
+                    if (item.UserState == "y") {
+                        switch01 = '<div class="form-check form-switch"><input class="form-check-input" data-id="'+item.ID+'" type="checkbox" role="switch" id="switch01" checked><label class="form-check-label" for="switch01">啟用</label></div>';
+                    } else {
+                        switch01 = '<div class="form-check form-switch"><input class="form-check-input" data-id="'+item.ID+'" type="checkbox" role="switch" id="switch01"><label class="form-check-label" for="switch01" >停權</label></div>';
+                    };
+
+
+                    var strHTML = '<tr><td data-th="編號">' + item.ID + '</td><td data-th="帳號">' + item.Username + '</td><td data-th="Email">' + item.Email + '</td><td data-th="居住地">'+ item.Location +'</td><td data-th="註冊時間">' + item.Created_at + '</td><td>' + switch01 + '</td><td data-th="功能"><button class="btn btn-outline-light me-3" data-bs-toggle="modal" data-bs-target="#update_modal" data-id="' + item.ID + '" data-username="' + item.Username + '" data-email="' + item.Email + '"type="button" id="update_btn">Modal更新</button><button class="btn btn-light">刪除</button></td></tr>'
+                    $("#mem_list").append(strHTML);
+                })
+            } else {
+                alert(data.message);
+            }
+        }
+        
+        function showdata_U_useState(data){
+            console.log(data);
+            if(data.state){
+                alert(data.message);
+                location.href = "members_management.html";
+            }else{
+                alert(data.messaage);
+            }
+        }
+
+        function showdata_update(data) {
+            console.log(data);
+            if (data.state) {
+                alert(data.message);
+                location.href = "members_management.html";
+            } else {
+                alert(data.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

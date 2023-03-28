@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>item_management</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+    </style>
+</head>
+
+<body>
+    <div class="container mt-3">
+        <div class="background bg-dark">
+            <div class="card text-center mt-3">
+                <div class="card-header">
+                    <h1 style="font-weight:900">商品後台管理</h1>
+                    <section>
+                        <div class="text-end">
+                            <a href="item_add.html" class="btn btn-primary" tabindex="-1" role="button" aria-disabled="true">上架新商品</a>
+                        </div>
+                    </section>
+                </div>
+                <div class="card-body mt-2 col-12">
+                    <table class=" table table-rwd" style="text-align: center;">
+                        <thread>
+                            <tr>
+                                <th>勾選</th>
+                                <th>編號</th>
+                                <th>名稱</th>
+                                <th>圖片</th>
+                                <th>顏色</th>
+                                <th>商品簡介</th>
+                                <th>商品特色</th>
+                                <th>商品價格</th>
+                                <th>上架狀態</th>
+                                <th>功能</th>
+                            </tr>
+                        </thread>
+                        <tbody id="item_list">
+                            <tr>
+                                <td data-th="check-box"><input type="checkbox" id="checkbox" name="checkbox"
+                                        value="checkbox"></td>
+                                <td data-th="商品編號">testing</td>
+                                <td data-th="商品名稱">testing</td>
+                                <td data-th="商品圖片"><img src="" alt=""></td>
+                                <td data-th="商品顏色">testing</td>
+                                <td data-th="商品簡介">testing</td>
+                                <td data-th="商品特色">testing</td>
+                                <td data-th="商品價格">200</td>
+                                <td data-th="上架狀態">testing</td>
+                                <td data-th="修改"><a href="item_status.html?id=OOO" button type="button" class="btn btn-warning">單筆修改</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "item_read_api.php",
+                dataType: "json",
+                success: showdata_itemlist,
+                error: function () {
+                    alert("error_item_read_api.php");
+                }
+            })
+        })
+
+        function showdata_itemlist(data) {
+            console.log(data.data);
+            $("#item_list").empty();
+            data.data.forEach(function (item) {
+                console.log(item.Item_name);
+                console.log(item.Item_color);
+                console.log(item.Item_number);
+
+                var strHTML = '<tr><td data-th="check-box"><input type="checkbox" id="checkbox" name="checkbox" value="checkbox"></td><td data-th="商品編號">' + item.Item_number + '</td><td data-th="商品名稱">' + item.Item_name + '</td><td data-th="商品圖片"><img src="" alt=""></td><td data-th="商品顏色">' + item.Item_color + '</td><td data-th="商品簡介">' + item.Item_introduction + '</td><td data-th="商品特色">' + item.Item_feature + '</td><td data-th="商品價格">' + item.Item_price + '</td><td data-th="上架狀態">' + item.Item_status + '</td><<td data-th="修改"><a href="item_status.html?id='+item.Item_number+'" button type="button" class="btn btn-warning" target="_blank">單筆修改</button></td>';
+                $("#item_list").append(strHTML);
+            });
+        }
+    </script>
+</body>
+
+</html>

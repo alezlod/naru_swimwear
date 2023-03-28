@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch應用複習</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <table class="table mt-3">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>帳號</th>
+                            <th>狀態(啟用/停權)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                        <tr>
+                            <td>001</td>
+                            <td>alezlod</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switch01" checked>
+                                    <label class="form-check-label" for="switch01">啟用</label>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 先建立JSON格式的檔案，並用console.log顯示出來
+        $(function(){
+            var userData = [
+                {
+                    "ID" : "01",
+                    "username" : "owner01",
+                    "userState" : true, 
+                    // true: 啟用 false: 停權
+                },
+                {
+                    "ID" : "02",
+                    "username" : "owner02",
+                    "userState" : false, 
+                    // true: 啟用 false: 停權
+                },
+                {
+                    "ID" : "03",
+                    "username" : "owner03",
+                    "userState" : false, 
+                    // true: 啟用 false: 停權
+                },
+                {
+                    "ID" : "04",
+                    "username" : "owner04",
+                    "userState" : true, 
+                    // true: 啟用 false: 停權
+                },
+            ];
+            //先設定以上資料並渲染到table格式
+            console.log(userData);
+            $("userList").empty();
+            
+            //使用forEach寫法, 裡面的每一筆資列叫item
+            userData.forEach(function(item){
+                console.log(item.username);
+                console.log(item.ID);
+                console.log(item.userState);
+
+                if(item.userState){
+                    switch01 = '<div class="form-check form-switch"><input class="form-check-input" data-id="'+item.ID+'" type="checkbox" role="switch" id="switch01" checked><label class="form-check-label" for="switch01">啟用</label></div>';
+                }else{
+                    switch01 = '<div class="form-check form-switch"><input class="form-check-input" data-id="'+item.ID+'" type="checkbox" role="switch" id="switch01" disabled><label class="form-check-label" for="switch01" >停權</label></div>';
+                }
+
+                var strHTML = '<tr><td>'+ item.ID +'</td><td>'+ item.username +'</td><td>'+switch01+'</td></tr>';
+                $("#userList").append(strHTML);
+                
+            });
+
+            // 監聽switch 記得按鈕id前面要加大範圍的id
+            $("#userList #switch01").change(function(){
+                console.log($(this).is(":checked"));
+                var userState;
+                if($(this).is(":checked")){
+                    $(this).next().text("啟用");
+                    $(this).next().css("color","green");
+                    userState = true;
+                }else{
+                    $(this).next().text("停權");
+                    $(this).next().css("color","red");
+                    userState = false;
+                }
+
+                // 傳遞資料到API 以JSON格式CONSOLE.LOG出來
+                // {"ID":"01", "userState" : false}
+                var jsonData = {};
+                jsonData["ID"] = $(this).data("ID");
+                jsonData["userState"] = userState;
+                console.log(JSON.stringify(jsonData));
+
+            })
+        }) 
+    </script>
+</body>
+</html>
