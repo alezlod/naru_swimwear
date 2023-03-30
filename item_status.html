@@ -73,6 +73,7 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <script>
         var i_no;
+        var flag_upload = false;
         $(function () {
             console.log(location.href);
             // 印出目前的所在位置
@@ -96,6 +97,24 @@
                     alert("error_item_select_one.php");
                 }
             })
+
+            $("#item_photo").change(function () {
+                // console.log($(this));
+                console.log(item_photo.files[0]);
+                console.log(item_photo.files[0].type);
+                if (item_photo.files[0].type == "image/png" || item_photo.files[0].type == "image/jpeg") {
+                    console.log("檔案格式符合");
+                    console.log(URL.createObjectURL(item_photo.files[0]));
+                    $("#prevImg").removeClass("d-none");
+                    $("#prevImg").attr("src", URL.createObjectURL(item_photo.files[0]));
+                    flag_upload = true;
+                } else {
+                    console.log("檔案格式不符合");
+                    alert("檔案格式不符合");
+                    $("#prevImg").addClass("d-none");
+                    flag_upload = false;
+                }
+            });
 
             // 監聽更新按鈕 #update_btn
             $("#update_btn").bind("click", function () {
@@ -124,28 +143,7 @@
                         }
                     });
 
-                    var jsonDATA = {};
-                    jsonDATA["item_number"] = i_no;
-                    jsonDATA["item_name"] = $("#item_name").val();
-                    jsonDATA["item_color"] = $("#item_color").val();
-                    jsonDATA["item_introduction"] = $("#item_introduction").val();
-                    jsonDATA["item_feature"] = $("#item_feature").val();
-                    jsonDATA["item_price"] = $("#item_price").val();
-                    jsonDATA["item_status"] = $("#item_status").val();
-                    jsonDATA["item_photo"] = $("#item_photo").val();
-                    console.log(JSON.stringify(jsonDATA));
 
-                    // 傳遞至後端
-                    $.ajax({
-                        type: "POST",
-                        url: "item_update_api.php",
-                        data: JSON.stringify(jsonDATA),
-                        dataType: "json",
-                        success: update_data,
-                        error: function () {
-                            alert("error_item_update_api.php");
-                        }
-                    })
                 } else {
                     alert("檔案必須為png或jpg檔");
                     // how to reset the data in form
@@ -169,23 +167,52 @@
                 $("#item_feature").val(data.data.Item_feature);
                 $("#item_price").val(data.data.Item_price);
                 $("#item_status").val(data.data.Item_status);
+                $("#item_photo").val(data.dta.Item_photo);
             } else {
                 alert(data.message);
                 location.href = "item_management.html";
             }
         }
 
-        function update_data(data) {
+        function picturedata(data) {
             console.log(data);
             if (data.state) {
+                console.log("success");
+                var status = "upload/" + data.data.filename;
+                var jsonDATA = {};
+                jsonDATA["item_number"] = i_no;
+                jsonDATA["item_name"] = $("#item_name").val();
+                jsonDATA["item_color"] = $("#item_color").val();
+                jsonDATA["item_introduction"] = $("#item_introduction").val();
+                jsonDATA["item_feature"] = $("#item_feature").val();
+                jsonDATA["item_price"] = $("#item_price").val();
+                jsonDATA["item_status"] = $("#item_status").val();
+                jsonDATA["item_photo"] = status;
+                console.log(JSON.stringify(jsonDATA));
+
+                // 傳遞至後端
+                $.ajax({
+                    type: "POST",
+                    url: "item_update_api.php",
+                    data: JSON.stringify(jsonDATA),
+                    dataType: "json",
+                    success: update_data,
+                    error: function () {
+                        alert("error_item_update_api.php");
+                    }
+                })
                 alert(data.message);
                 location.href = "item_management.html";
                 console.log(data.data.filename);
-                var status = "upload/"+data.data.filename;
+                var status = "upload/" + data.data.filename;
                 return status;
             } else {
                 alert(data.message);
             }
+        }
+
+        function update_data(data){
+            console.log(data);
         }
     </script>
 </body>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台北市YouBike 2.0地圖</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+
+    <style>
+        .region_list {
+            height: 100vh;
+            overflow: scroll;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-7 bg-primary">
+                <div class="vh-100" id="map"></div>
+            </div>
+            <div class="col-md-5 bg-dark">
+                <div class="form-group my-2">
+                    <label for="exampleFormControlSelect1" class=" my-2 font-weight-bold">
+                        <h1 style="color:white; font-weight:800;">台北市區域YouBike 2.0查詢</h1>
+                    </label>
+                    <select class="form-select-lg" aria-label="Default select example" id="district"
+                        style="text-align: center; font-weight: 700;">
+                        <option>大安區</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        登入
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">登入會員</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text" id="inputGroup-sizing-lg"
+                                            style="font-size: 25px;">帳號</span>
+                                        <input type="text" class="form-control" aria-label="Sizing example input"
+                                            aria-describedby="inputGroup-sizing-lg" id="username">
+                                    </div>
+                                    <div class="input-group input-group-lg mt-3">
+                                        <span class="input-group-text" id="inputGroup-sizing-lg"
+                                            style="font-size: 25px;">密碼</span>
+                                        <input type="password" class="form-control" aria-label="Sizing example input"
+                                            aria-describedby="inputGroup-sizing-lg" id="password">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                                    <button type="button" class="btn btn-primary" id="login_btn">登入會員</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="list-group region_list" id="listData">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/youbike_immediate.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+    <script src="js/leaflet-color-markers.js"></script>
+    <script src="js/leaflet.markercluster.js"></script>
+</body>
+<script>
+    var ubikeData = []; //所有ubike的資料
+    var selectDistrict = ''; //已選取的台北市區
+    var map;
+    $(function () {
+
+        //登入按鈕監聽
+        $("#login_btn").bind("click", function () {
+            var jsonData = {};
+            jsonData["username"] = $("#username").val();
+            jsonData["password"] = $("#password").val();
+            console.log(JSON.stringify(jsonData));
+            $.ajax({
+                type: "POST",
+                url: "member_login_api.php",
+                data: JSON.stringify(jsonData),
+                dataType: "json",
+                success: showdata_login,
+                error: function () {
+                    alert("error.member_login_api.php");
+                }
+            })
+        })
+        //地圖
+        $(function () {
+            map = L.map('map').setView([25.0169639, 121.2261861], 10);
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            var markers = new L.markerClusterGroup().addTo(map);
+
+            //取得使用者座標位置並標出marker
+            // if(navigator.geolocation){
+            //     navigator.geolocation.getCurrentPosition(showPosition);
+            // }else{
+            //     console.log("Geolocation is not supported by this browser");
+            // }
+        })
+        // 先把資料庫抓近來
+        $.ajax({
+            type: "GET",
+            url: "https://tcgbusfs.blob.core.windows.net/dotapp/youbike/v2/youbike_immediate.json",
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                // 設一個參數給他
+                ubikeData = data;
+                console.log(ubikeData);
+            },
+            error: function () {
+                alert("error-");
+            }
+        });
+
+        console.log(taipei_district);
+        $("#district").append('<option disabled selected>----區域----</option>');
+        taipei_district.forEach(function (item) {
+            var strHTML = '<option>' + item + '</option>';
+            $("#district").append(strHTML);
+        })
+
+        // 監聽，如果#district的按鈕資料改變，把選取的資料放入變數selectDistrict中，其中的所有ubike資料放進陣列bikeData裡
+        $("#district").change(function () {
+            selectDistrict = $(this).val();
+            console.log(selectDistrict);
+            var bikeData = []; //儲存挑選後單一區域ubikeData資料
+            ubikeData.find(function (item) {
+                //從ubikeData.js檔尋找同樣的區域，放進bikeData
+                if (item.sarea == selectDistrict) {
+                    bikeData.push(item);
+                }
+            });
+            console.log(bikeData);
+
+            // 點選之後，比例尺變大
+            // 水滴在區域更改之後就消失
+            $("#listData").empty();
+            removeMarker();
+
+            bikeData.forEach(function (item, key) {
+                var strHTML03 = '<li class="list-group-item"><p class="h3">站點查詢:' + item.sna + '</p><p class="h3">站點位置:' + item.ar + '</p><p class="h3">可借車輛: ' + item.sbi + '輛</p><p class="h3">可停空位:' + item.bemp + ' 輛</p></li>';
+                $("#listData").append(strHTML03);
+
+                var lat = item.lat;
+                var lng = item.lng;
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup('<div class="card" style="width: 18rem;"><div class="card-body"><h5 class="card-title">' + item.sna + '</h5><p class="card-text">' + item.ar + '</p><p class="h3">可借車輛: ' + item.sbi + '輛</p><p class="h3">可停空位:' + item.bemp + ' 輛</p></div></div>');
+
+
+                //變換區域時地圖轉移
+                if (key == Math.round(bikeData.length / 2)) {
+                    panTo(lat, lng);
+                }
+
+            })
+        })
+
+
+    })
+
+    function removeMarker() {
+        map.eachLayer(function (layer) {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer)
+            }
+        });
+    }
+
+    function showdata_login(data) {
+        // 會員登入失敗停在原本的畫面
+        if (data.state) {
+            // alert(data.message);
+            // location.href = "swimwear_homepage.html"
+            console.log(data.data[0].UserState);
+            console.log(data.data[0].UID01);
+            console.log(data.data[0].UID02);
+            // 將UID寫入cookie
+            setCookie("UID01", data.data[0].UID01, 7);
+            setCookie("UID02", data.data[0].UID02, 7);
+
+            if (data.data[0].UserState == "y") {
+                location.href = "ubike_map.html";
+            } else {
+                alert("帳號已被停用");
+            }
+        } else {
+            // 會員登入成功到訂單管理頁面
+            alert("帳號密碼錯誤");
+            location.href = "login_page.html"
+        }
+    }
+
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+</script>
+
+</html>

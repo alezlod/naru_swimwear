@@ -82,7 +82,7 @@
                 console.log(item.Item_color);
                 console.log(item.Item_number);
 
-                var strHTML = '<tr><td data-th="check-box"><input type="checkbox" id="checkbox" name="checkbox" value="checkbox"></td><td data-th="商品編號">' + item.Item_number + '</td><td data-th="商品名稱">' + item.Item_name + '</td><td data-th="商品圖片"><img src="" alt=""></td><td data-th="商品顏色">' + item.Item_color + '</td><td data-th="商品簡介">' + item.Item_introduction + '</td><td data-th="商品特色">' + item.Item_feature + '</td><td data-th="商品價格">' + item.Item_price + '</td><td data-th="上架狀態">' + item.Item_status + '</td><<td data-th="修改"><a href="item_status.html?id='+item.Item_number+'" button type="button" class="btn btn-warning" target="_blank">單筆修改</button></td>';
+                var strHTML = '<tr><td data-th="check-box"><input type="checkbox" id="checkbox" name="checkbox" value="checkbox"></td><td data-th="商品編號">' + item.Item_number + '</td><td data-th="商品名稱">' + item.Item_name + '</td><td data-th="商品圖片"><img src="'+ item.Item_photo +'" alt="" weight="100" height="250"></td><td data-th="商品顏色">' + item.Item_color + '</td><td data-th="商品簡介">' + item.Item_introduction + '</td><td data-th="商品特色">' + item.Item_feature + '</td><td data-th="商品價格">' + item.Item_price + '</td><td data-th="上架狀態">' + item.Item_status + '</td><<td data-th="修改"><a href="item_status.html?id='+item.Item_number+'" button type="button" class="btn btn-warning" target="_blank">單筆修改</button></td>';
                 $("#item_list").append(strHTML);
             });
         }

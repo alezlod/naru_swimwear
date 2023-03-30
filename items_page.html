@@ -182,7 +182,7 @@
                 <h3 style="font-family: Passion One;">All Item Selections</h3>
                 <div class="row" id="item_list">
                     <div class="card mt-3" style="width: 18rem;">
-                        <img src="..." class="card-img-top" alt="...">
+                        <a href=""><img src="..." class="card-img-top" alt="..." weight="300" height="400"></a>
                         <div class="card-body">
                             <h5 class="card-title" style="font-weight: 800;">Item Name</h5>
                             <a href="#" class="btn btn-primary">Go somewhere</a>
@@ -316,9 +316,10 @@
             data.data.forEach(function (item) {
                 console.log(item.Item_name);
                 console.log(item.Item_photo);
-
-                var strHTML = '<div class="card mt-3" style="width: 18rem;"><img src="'+ item.Item_photo +'" class="card-img-top" alt = "..." ><div class="card-body"><h5 class="card-title" style="font-weight: 800;">' + item.Item_name + '</h5>$'+item.Item_price+'</div></div>';
-                $("#item_list").append(strHTML);
+                if (item.Item_status != "N") {
+                    var strHTML = '<div class="card mt-3 margin-left:10%; " style="width: 18rem;"><a href="single_item.html?id='+item.Item_number+'"><img src="' + item.Item_photo + '" class="card-img-top" alt = "..." weight="300" height="400"></a><div class="card-body"><h5 class="card-title" style="font-weight: 800;">' + item.Item_name + '</h5>$' + item.Item_price + '</div></div>';
+                    $("#item_list").append(strHTML);
+                }
             })
         }
     }

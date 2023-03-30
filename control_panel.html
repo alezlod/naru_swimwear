@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>後臺管理</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/myall.css">
+    <link rel="stylesheet" href="css/animate.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+</head>
+
+<body>
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 1 -->
+    <nav class="navbar navbar-expand-lg" style="background-color: #ff6f69;">
+        <div class="container-fluid">
+            <a class="navbar-brand" style="color:white;font-size: 35px;font-weight: 900;">後臺管理</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active ms-5" aria-current="page" href="item_management.html"
+                            style="color:aliceblue;font-size:larger">商品管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="memebers_management.html"
+                            style="color:aliceblue;font-size:larger">會員管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" style="color:aliceblue;font-size:larger">數據報表</a>
+                    </li>
+            </div>
+        </div>
+    </nav>
+    <!-- 2 -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mt-5">
+                <div class="card" style="width: 18rem;;height: 11rem;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-weight:800;text-align: center;">本日訂單</h5>
+                        <p class="card-text" id="total_money">總銷售金額</p>
+                        <span class="card-text" id="total_order_amount">總訂單數量</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mt-5">
+                <div class="card" style="width: 18rem;height: 11rem;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-weight:800;text-align: center;">目前商品數量</h5>
+                        <p class="card-text" id="new_item">新品 &nbsp</p>
+                        <p class="card-text" id="discount_item">折扣 &nbsp
+                        <p>
+                        <p class="card-text" id="offstock_item">下架 &nbsp</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mt-5">
+                <div class="card" style="width: 18rem; height: 11rem;">
+                    <div class="card-body">
+                        <h5 class="card-title" style="font-weight:800;text-align: center;">會員數量</h5>
+                        <p class="card-text" id="monthly_new_members">本月新增會員數</p>
+                        <p class="card-text" id="total_member" style="font-weight: 900;">總會員數</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 3 -->
+    <div class="container mt-3" style="background-color:#ff6f69 ;">
+        <div class="row p-2">
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>商品數量</h4>
+                    </div>
+                    <div class="card">
+                        <canvas id="mychartPie"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card">
+                    <div class="card-header">長條圖</div>
+                    <div class="card-body w-100">
+                        <canvas id="mychartbar"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header" style="text-align:center;font-weight:700;">會員所在地統計</div>
+                    <div class="card-body"><canvas id="myChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mychart;
+        $(function () {
+            //長條圖來囉
+            const ctx02 = document.getElementById('mychartbar');
+            mychartbar = new Chart(ctx02, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '會員數量',
+                        data: [],
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            //圓餅圖來囉
+            const ctx01 = document.getElementById('mychartPie');
+            mychartPie = new Chart(ctx01, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '會員等級分布',
+                        data: [],
+                        backgroundColor: [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 205, 86)',
+                            'rgb(12, 205, 86)',
+                            'rgb(32, 205, 86)',
+                            'rgb(50, 205, 86)',
+                        ],
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '商品分配數量'
+                        }
+                    }
+                },
+            });
+
+            //會員所在地統計
+            const ctx = document.getElementById('myChart');
+            mychart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '# of people',
+                        data: [],
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "retrieve_city.php",
+                dataType: "json",
+                success: showdata_total_city,
+                error: function () {
+                    alert("error_showdata_total_city");
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "retrieve_member.php",
+                dataType: "json",
+                success: showdata_total_member,
+                error: function () {
+                    alert("error_retrieve_memeber.php");
+                }
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "retrieve_item.php",
+                dataType: "json",
+                success: showdata_total_item,
+                error: function () {
+                    alert("error_retrieve_item.php");
+                }
+            });
+        });
+
+        function showdata_total_member(data) {
+            console.log(data);
+            console.log(data.data[0].total_member);
+            $("#total_member").append(data.data[0].total_member);
+
+        }
+
+        function showdata_total_city(data) {
+            console.log(data.data);
+            console.log(data.data[0].Location);
+            console.log(data.data[0].num);
+            data.data.forEach(function (item) {
+                console.log(item.Location + item.num);
+                // 這段沒看懂QQ
+                mychart.data.labels.push(item.Location);
+                mychart.data.datasets[0].data.push(item.num);;
+                mychartbar.data.labels.push(item.Location);
+                mychartbar.data.datasets[0].data.push(item.num);
+            });
+
+            mychart.update();
+            mychartbar.update();
+        }
+
+        function showdata_total_item(data) {
+            console.log(data.data);
+            $("#new_item").append(data.data[1].num);
+            $("#discount_item").append(data.data[2].num + data.data[3].num);
+            $("#offstock_item").append(data.data[0].num);
+            data.data.forEach(function (item) {
+                console.log(item.num + item.Item_status);
+                mychartPie.data.labels.push(item.Item_status);
+                mychartPie.data.datasets[0].data.push(item.num)
+            });
+            mychartPie.update();
+        }
+    </script>
+</body>
+
+</html>

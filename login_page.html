@@ -82,9 +82,9 @@
     <section>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">
+                <a class="navbar-brand" href="swimwear_homepage.html">
                     <div class="box" style="background-color:#ff6f69; padding: 10px;">
-                        <h1 style="font-family: Lobster Two; color:white" href="swimwear_homepage.html">naru</h1>
+                        <h1 style="font-family: Lobster Two; color:white" href="">naru</h1>
                     </div>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -136,8 +136,8 @@
                                 <li><a class="dropdown-item" href="#">Accessory</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item" id="link-control" style="display:none;">
-                            <a class="nav-link" href="members_management.html" style="color:white">後臺管理</a>
+                        <li class="nav-item" id="link_control" style="display:none;">
+                            <a class="nav-link" href="members_management.html" style="color:#ff6f69">後臺管理</a>
                         </li>
                     </ul>
                     <section>
@@ -259,16 +259,23 @@
             // 會員登入失敗停在原本的畫面
             if (data.state) {
                 alert(data.message);
-                location.href = "swimwear_homepage.html"
                 console.log(data.data[0].UserState);
                 console.log(data.data[0].UID01);
                 console.log(data.data[0].UID02);
+                console.log(data.data);
                 // 將UID寫入cookie
                 setCookie("UID01", data.data[0].UID01, 7);
                 setCookie("UID02", data.data[0].UID02, 7);
 
                 if (data.data[0].UserState == "y") {
-                    // location.href = "memebers_management.html";
+                    // $("#link_control").show();
+                    // location.href = "swimwear_homepage.html";
+                    if (data.data[0].ID == 38) {
+                        console.log("hahaha");
+                        location.href = "control_panel.html";
+                    } else {
+                        location.href = "swimwear_homepage.html";
+                    }
                 } else {
                     alert("帳號已被停用");
                 }
